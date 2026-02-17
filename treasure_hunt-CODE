@@ -1,0 +1,77 @@
+import random
+import tkinter as tk
+
+# Function to start or restart the game
+def start_game():
+    global treasure_row, treasure_col, attempts
+    treasure_row = random.randint(0, 4)
+    treasure_col = random.randint(0, 4)
+    attempts = 0
+    hint_label.config(text="Find the treasure! Click a cell.", fg="black")
+    attempts_label.config(text=f"Attempts: {attempts}")
+    
+    # Reset all buttons
+    for i in range(5):
+        for j in range(5):
+            buttons[i][j].config(text="", bg="lightblue", state="normal")
+
+# Function to handle guesses
+def check_guess(r, c, button):
+    global attempts
+    attempts += 1
+    attempts_label.config(text=f"Attempts: {attempts}")
+    
+    if r == treasure_row and c == treasure_col:
+        button.config(text="💎", bg="gold", state="disabled")
+        hint_label.config(text=f"🎉 You found the treasure at Row {r+1}, Column {c+1}!", fg="green")
+        # Disable all other buttons
+        for i in range(5):
+            for j in range(5):
+                buttons[i][j].config(state="disabled")
+    else:
+        button.config(text="❌", bg="red", state="disabled")
+        # Give hints
+        hint = ""
+        if r < treasure_row:
+            hint += "↑ Try a higher row.  "
+        elif r > treasure_row:
+            hint += "↓ Try a lower row.  "
+
+        if c < treasure_col:
+            hint += "→ Try a higher column."
+        elif c > treasure_col:
+            hint += "← Try a lower column."
+
+        hint_label.config(text=hint, fg="blue")
+
+# Create GUI window
+root = tk.Tk()
+root.title("Treasure Hunt Game")
+
+# Hint label
+hint_label = tk.Label(root, text="Find the treasure! Click a cell.", font=("Arial", 12))
+hint_label.grid(row=0, column=0, columnspan=5, pady=10)
+
+# Attempts label
+attempts_label = tk.Label(root, text="Attempts: 0", font=("Arial", 12))
+attempts_label.grid(row=6, column=0, columnspan=5, pady=5)
+
+# Restart button
+restart_btn = tk.Button(root, text="Restart Game", font=("Arial", 12), command=start_game)
+restart_btn.grid(row=7, column=0, columnspan=5, pady=10)
+
+# Create 5x5 grid buttons
+buttons = []
+for i in range(5):
+    row_buttons = []
+    for j in range(5):
+        btn = tk.Button(root, width=6, height=3, bg="lightblue")
+        btn.config(command=lambda r=i, c=j, b=btn: check_guess(r, c, b))
+        btn.grid(row=i+1, column=j, padx=2, pady=2)
+        row_buttons.append(btn)
+    buttons.append(row_buttons)
+
+# Initialize game
+start_game()
+
+root.mainloop()
